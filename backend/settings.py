@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     'users',
     'departments',
     'salaries',
+    'attendance',
 ]
+
+AUTH_USER_MODEL = 'users.EmpUser'#指定自定义的用户模型类
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -53,7 +56,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+LOGIN_REDIRECT_URL = '/users/'
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
