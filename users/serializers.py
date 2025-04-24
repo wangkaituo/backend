@@ -5,7 +5,6 @@ from .models import EmpUser
 class EmpUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     department_name = serializers.ReadOnlyField(source='department.dept_name')
-    department = serializers.CharField(write_only=True)
 
     class Meta:
         model = EmpUser
