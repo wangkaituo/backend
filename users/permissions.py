@@ -16,6 +16,11 @@ class IsSelfOrBoss(BasePermission):
             return obj == user
         return False
 
+class IsBoss(BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        return user.is_authenticated and user.emp_role == 'boss'
+
 
 class CanViewDepartmentUsers(BasePermission):
     """

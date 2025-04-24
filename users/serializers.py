@@ -4,14 +4,16 @@ from .models import EmpUser
 
 class EmpUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    department_name = serializers.ReadOnlyField(source='department.dept_name')
+    department = serializers.CharField(write_only=True)
 
     class Meta:
         model = EmpUser
         fields = [
             'emp_id', 'emp_name', 'emp_email', 'emp_phone',
-            'emp_role', 'emp_join_date', 'department', 'password'
+            'emp_role', 'emp_join_date', 'department', 'department_name', 'password'
         ]
-        read_only_fields = ('emp_id', 'emp_join_date', 'department','emp_role')
+        read_only_fields = ('emp_id', 'emp_join_date')
 
     def create(self, validated_data):
         password = validated_data.pop('password')
