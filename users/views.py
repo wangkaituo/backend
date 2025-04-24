@@ -25,15 +25,18 @@ class EmpUserList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         data = self.request.data
+        department = data.get("department", None)
+        emp_role = data.get("emp_role", None)
+        print(department)
+        print(emp_role)
         if user.emp_role == 'boss':
             department = data.get("department", None)
             if not department:  # 添加参数校验
                 raise ValidationError("Department parameter is required for boss users")
 
-            if EmpUser.objects.filter(department=department, emp_role='manager').exists():  # 改用exists()更高效
+            if emp_role =='manager' and EmpUser.objects.filter(department=department, emp_role='manager').exists():  # 改用exists()更高效
                 raise ValidationError("You can only create one manager in each department.")
             serializer.save()  # 移出else块
-
         elif user.emp_role == 'manager':
             serializer.save(department=user.department, emp_role='employee')
 
@@ -48,7 +51,6 @@ class EmpUserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = EmpUser.objects.all()
     serializer_class = EmpUserSerializer
     permission_classes = [IsAuthenticated, IsSelfOrBoss]
-
 
     # 修正权限判断逻辑
     def perform_destroy(self, instance):
