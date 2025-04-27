@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from .serializers import EmpUserSerializer
 from .models import EmpUser
 from .permissions import IsSelfOrBoss, CanViewDepartmentUsers
+from paginations.emp_pagination import EmpPagination
 
 
 # 修正导入语句，补充新增的权限类
@@ -11,6 +12,7 @@ class EmpUserList(generics.ListCreateAPIView):
     queryset = EmpUser.objects.all()
     serializer_class = EmpUserSerializer
     permission_classes = [IsAuthenticated, CanViewDepartmentUsers]
+    pagination_class = EmpPagination
 
     def get_queryset(self):
         user = self.request.user
