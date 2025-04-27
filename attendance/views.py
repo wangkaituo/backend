@@ -4,12 +4,14 @@ from .serializers import AttendanceSerializer
 from datetime import date
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
+from paginations.attendance_pagination import AttendancePagination
 from users.models import EmpUser
 
 class AttendanceList(generics.ListCreateAPIView):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = AttendancePagination
 
     def perform_create(self, serializer):
         now_time = date.today()
