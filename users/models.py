@@ -40,7 +40,10 @@ class EmpUser(AbstractBaseUser, PermissionsMixin):
     )
 
     # 额外认证字段必须加
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)  # 确保该字段生效
+    
+    def is_active(self):
+        return self.is_active  # 需要实现该方法
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'emp_id'  # 用作登录的字段

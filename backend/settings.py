@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -25,8 +24,13 @@ SECRET_KEY = 'django-insecure-wbkpuvo=hdxca4y#5n2y$)w86r%s==@j(^eh8tait47kpgl5@t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8080',
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -43,9 +47,20 @@ INSTALLED_APPS = [
     'departments',
     'salaries',
     'attendance',
+    'corsheaders',
 ]
 
-AUTH_USER_MODEL = 'users.EmpUser'#指定自定义的用户模型类
+AUTH_USER_MODEL = 'users.EmpUser'  # 指定自定义的用户模型类
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'emp_id',
+    'SIGNING_KEY': SECRET_KEY,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -55,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',# 跨域中间件
 ]
 LOGIN_REDIRECT_URL = '/users/'
 ROOT_URLCONF = 'backend.urls'
@@ -77,7 +93,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -91,7 +106,6 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -111,18 +125,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-#设置中国时区
+# 设置中国时区
 TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

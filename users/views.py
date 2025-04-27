@@ -27,8 +27,6 @@ class EmpUserList(generics.ListCreateAPIView):
         data = self.request.data
         department = data.get("department", None)
         emp_role = data.get("emp_role", None)
-        print(department)
-        print(emp_role)
         if user.emp_role == 'boss':
             department = data.get("department", None)
             if not department:  # 添加参数校验

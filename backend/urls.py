@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from users.loginview import MyTokenObtainPairView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('sa/', include('salaries.urls')),
     path('atts/', include('attendance.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('login/',MyTokenObtainPairView.as_view(),name='login'),
 ]
