@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'salaries',
     'attendance',
     'corsheaders',
+    'django_filters',
 ]
 
 AUTH_USER_MODEL = 'users.EmpUser'  # 指定自定义的用户模型类
@@ -55,6 +56,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],  # 确保默认过滤后端配置正确
 }
 
 SIMPLE_JWT = {
@@ -70,7 +72,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',# 跨域中间件
+    'corsheaders.middleware.CorsMiddleware',  # 跨域中间件
 ]
 LOGIN_REDIRECT_URL = '/users/'
 ROOT_URLCONF = 'backend.urls'
