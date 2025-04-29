@@ -18,7 +18,7 @@ class EmpUserList(generics.ListCreateAPIView):
     pagination_class = EmpPagination
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_class = EmpUserFilter  # 修正为 filterset_class
-    filterset_fields = ['emp_name', 'emp_join_date']
+    # filterset_fields = ['emp_name', 'emp_join_date']
 
     def get_queryset(self):
         user = self.request.user
@@ -53,9 +53,9 @@ class EmpUserList(generics.ListCreateAPIView):
             raise PermissionError(
                 'You do not have permission to perform this action.')
 
-    def list(self, request, *args, **kwargs):
-        print("Received filters:", request.query_params)  # 添加调试日志
-        return super().list(request, *args, **kwargs)
+    # def list(self, request, *args, **kwargs):
+    #     print("Received filters:", request.query_params)  # 添加调试日志
+    #     return super().list(request, *args, **kwargs)
 
 # 修正权限组合逻辑
 
@@ -73,3 +73,13 @@ class EmpUserDetail(generics.RetrieveUpdateDestroyAPIView):
         else:
             raise PermissionError(
                 'You do not have permission to perform this action.')
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.emp_role == 'boss':
+            queryset = EmpUser.objects.all().order_by('emp_id')  # 添加排序字段
+        elif user.emp_role == 'manager' and self.request.method in SAFE_METHODS:
+            queryset = EmpUser.objects.filter(department=user.department).order_by('emp_id')
+        else:
+            queryset = EmpUser.objects.filter(emp_id=user.emp_id)
+        return queryset

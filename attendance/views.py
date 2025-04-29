@@ -8,21 +8,24 @@ from paginations.attendance_pagination import AttendancePagination
 from users.models import EmpUser
 
 class AttendanceList(generics.ListCreateAPIView):
-    queryset = Attendance.objects.all()
+    queryset = Attendance.objects.all().order_by('-date')
     serializer_class = AttendanceSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = AttendancePagination
 
     def perform_create(self, serializer):
         now_time = date.today()
-        now_time = str(now_time).replace('-', '')
+        day_time = str(now_time).replace('-', '')
         emp_id = self.request.user.emp_id
-        att_id = f"{emp_id}_{now_time}"
+        att_id = f"{emp_id}_{day_time}"
         if Attendance.objects.filter(attendance_id=att_id).exists():
             raise ValidationError({"error": "Attendance already taken for today"})
-
         else:
-            serializer.save(emp_user_id=emp_id, date=now_time)
+            status = self.request.data.get('status')  # 获取前端传递的状态
+            if not status:
+                raise ValidationError({"error": "Status is required"})
+            print(f"创建考勤记录: emp_id={emp_id}, date={now_time}, status={status}")  # 调试日志
+            serializer.save(emp_user_id=emp_id, date=now_time, status=status)
 
     def get_queryset(self):
         emp_role = self.request.user.emp_role
