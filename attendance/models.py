@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Attendance(models.Model):
@@ -25,7 +25,7 @@ class Attendance(models.Model):
         verbose_name_plural = verbose_name
 
     def save(self, *args, **kwargs):
-        # 在保存之前生成考勤self.date = str(self.date).replace('-', '')编号, 格式为 员工号_日期,将日期格式化为字符串、去掉“-”
+        # 在保存之前生成考勤编号
         self.attendance_id = f"{self.emp_user.emp_id}_{self.date}"
         super(Attendance, self).save(*args, **kwargs)
         # 这里调用父类的 save 方法，确保数据被保存到数据库中

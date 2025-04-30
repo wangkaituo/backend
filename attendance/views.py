@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import generics
 from .models import Attendance
 from .serializers import AttendanceSerializer
@@ -18,14 +19,28 @@ class AttendanceList(generics.ListCreateAPIView):
         day_time = str(now_time).replace('-', '')
         emp_id = self.request.user.emp_id
         att_id = f"{emp_id}_{day_time}"
-        if Attendance.objects.filter(attendance_id=att_id).exists():
+        status = self.request.data.get('status')  # 获取前端传递的状态
+
+        if not status:
+            raise ValidationError({"error": "Status is required"})
+
+        try:
+            # 使用 get_or_create 避免重复插入
+            attendance, created = Attendance.objects.get_or_create(
+                attendance_id=att_id,
+                defaults={
+                    "emp_user_id": emp_id,
+                    "date": now_time,
+                    "status": status,
+                }
+            )
+            if not created:
+                raise ValidationError({"error": "Attendance already taken for today"})
+        except IntegrityError:
             raise ValidationError({"error": "Attendance already taken for today"})
-        else:
-            status = self.request.data.get('status')  # 获取前端传递的状态
-            if not status:
-                raise ValidationError({"error": "Status is required"})
-            print(f"创建考勤记录: emp_id={emp_id}, date={now_time}, status={status}")  # 调试日志
-            serializer.save(emp_user_id=emp_id, date=now_time, status=status)
+
+        print(f"创建考勤记录: emp_id={emp_id}, date={now_time}, status={status}")  # 调试日志
+        serializer.save(emp_user_id=emp_id, date=now_time, status=status)
 
     def get_queryset(self):
         emp_role = self.request.user.emp_role
