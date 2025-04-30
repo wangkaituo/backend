@@ -7,6 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from paginations.attendance_pagination import AttendancePagination
 from users.models import EmpUser
+from rest_framework.response import Response
+from rest_framework import status
+
 
 class AttendanceList(generics.ListCreateAPIView):
     queryset = Attendance.objects.all().order_by('-date')
@@ -20,27 +23,15 @@ class AttendanceList(generics.ListCreateAPIView):
         emp_id = self.request.user.emp_id
         att_id = f"{emp_id}_{day_time}"
         status = self.request.data.get('status')  # 获取前端传递的状态
-
         if not status:
             raise ValidationError({"error": "Status is required"})
-
-        try:
-            # 使用 get_or_create 避免重复插入
-            attendance, created = Attendance.objects.get_or_create(
-                attendance_id=att_id,
-                defaults={
-                    "emp_user_id": emp_id,
-                    "date": now_time,
-                    "status": status,
-                }
-            )
-            if not created:
-                raise ValidationError({"error": "Attendance already taken for today"})
-        except IntegrityError:
+        flag = Attendance.objects.filter(attendance_id=att_id).exists()
+        if not flag:
+            # 确保传递的 attendance_id 不会被模型的 save() 方法覆盖
+            serializer.save(attendance_id=att_id, emp_user_id=emp_id, status=status)
+        else:
+            # 返回明确的错误信息，供前端识别
             raise ValidationError({"error": "Attendance already taken for today"})
-
-        print(f"创建考勤记录: emp_id={emp_id}, date={now_time}, status={status}")  # 调试日志
-        serializer.save(emp_user_id=emp_id, date=now_time, status=status)
 
     def get_queryset(self):
         emp_role = self.request.user.emp_role
@@ -53,12 +44,14 @@ class AttendanceList(generics.ListCreateAPIView):
         else:
             emp_id = self.request.user.emp_id
             return Attendance.objects.filter(emp_user_id=emp_id)
+
 
 class AttendanceDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
     permission_classes = [IsAuthenticated]
-# Create your views here.
+
+    # Create your views here.
 
     def get_queryset(self):
         emp_role = self.request.user.emp_role
@@ -71,9 +64,11 @@ class AttendanceDetail(generics.RetrieveUpdateDestroyAPIView):
         else:
             emp_id = self.request.user.emp_id
             return Attendance.objects.filter(emp_user_id=emp_id)
-    #禁止删除
+
+    # 禁止删除
     def perform_destroy(self, instance):
         raise ValidationError({"error": "Attendance can not be deleted"})
-    #禁止修改
+
+    # 禁止修改
     def perform_update(self, serializer):
         raise ValidationError({"error": "Attendance can not be updated"})

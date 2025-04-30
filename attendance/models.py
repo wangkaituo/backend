@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils.timezone import now
 
 # Create your models here.
 class Attendance(models.Model):
@@ -25,10 +26,12 @@ class Attendance(models.Model):
         verbose_name_plural = verbose_name
 
     def save(self, *args, **kwargs):
-        # 在保存之前生成考勤编号
-        self.attendance_id = f"{self.emp_user.emp_id}_{self.date}"
-        super(Attendance, self).save(*args, **kwargs)
-        # 这里调用父类的 save 方法，确保数据被保存到数据库中
+        if not self.attendance_id:  # 只有在 attendance_id 为空时才生成新的 ID
+            if not self.date:  # 如果 date 为空，设置为当前日期
+                self.date = now().date()
+            formatted_date = self.date.strftime('%Y%m%d')  # 格式化日期为 YYYYMMDD
+            self.attendance_id = f"{self.emp_user_id}_{formatted_date}"
+        super().save(*args, **kwargs)
 
 
 
