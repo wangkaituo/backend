@@ -9,13 +9,15 @@ from paginations.attendance_pagination import AttendancePagination
 from users.models import EmpUser
 from rest_framework.response import Response
 from rest_framework import status
-
+from .filters import AttendanceFilter
 
 class AttendanceList(generics.ListCreateAPIView):
     queryset = Attendance.objects.all().order_by('-date')
     serializer_class = AttendanceSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = AttendancePagination
+    filterset_class = AttendanceFilter  # 保持不变
+
 
     def perform_create(self, serializer):
         now_time = date.today()

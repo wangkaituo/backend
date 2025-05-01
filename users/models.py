@@ -38,7 +38,7 @@ class EmpUser(AbstractBaseUser, PermissionsMixin):
         null=True,
         verbose_name='所属部门号'
     )
-
+    
     # 额外认证字段必须加
     is_active = models.BooleanField(default=True)  # 确保该字段生效
     

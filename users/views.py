@@ -16,7 +16,7 @@ class EmpUserList(generics.ListCreateAPIView):
     serializer_class = EmpUserSerializer
     permission_classes = [IsAuthenticated, CanViewDepartmentUsers]
     pagination_class = EmpPagination
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_class = EmpUserFilter  # 修正为 filterset_class
     # filterset_fields = ['emp_name', 'emp_join_date']
 
