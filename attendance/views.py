@@ -1,8 +1,10 @@
 from django.db import IntegrityError
+from django.db.models import OrderBy
 from rest_framework import generics
+from rest_framework import filters
 from .models import Attendance
 from .serializers import AttendanceSerializer
-from datetime import date
+from datetime import date, datetime
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from paginations.attendance_pagination import AttendancePagination
@@ -11,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .filters import AttendanceFilter
 
+
 class AttendanceList(generics.ListCreateAPIView):
     queryset = Attendance.objects.all().order_by('-date')
     serializer_class = AttendanceSerializer
@@ -18,22 +21,18 @@ class AttendanceList(generics.ListCreateAPIView):
     pagination_class = AttendancePagination
     filterset_class = AttendanceFilter  # 保持不变
 
-
     def perform_create(self, serializer):
-        now_time = date.today()
-        day_time = str(now_time).replace('-', '')
+        now_time = datetime.now().date()  # 确保使用正确的日期格式
+        day_time = now_time.strftime('%Y%m%d')  # 格式化为 YYYYMMDD
         emp_id = self.request.user.emp_id
         att_id = f"{emp_id}_{day_time}"
         status = self.request.data.get('status')  # 获取前端传递的状态
         if not status:
-            raise ValidationError({"error": "Status is required"})
-        flag = Attendance.objects.filter(attendance_id=att_id).exists()
-        if not flag:
-            # 确保传递的 attendance_id 不会被模型的 save() 方法覆盖
-            serializer.save(attendance_id=att_id, emp_user_id=emp_id, status=status)
-        else:
-            # 返回明确的错误信息，供前端识别
+            raise ValidationError({"error": "Status is required"})  # 返回明确错误信息
+        if Attendance.objects.filter(attendance_id=att_id).exists():
             raise ValidationError({"error": "Attendance already taken for today"})
+        else:
+            serializer.save(attendance_id=att_id, emp_user_id=emp_id, status=status)
 
     def get_queryset(self):
         emp_role = self.request.user.emp_role

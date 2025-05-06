@@ -132,11 +132,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 # 设置中国时区
-TIME_ZONE = 'Asia/Shanghai'
-
-USE_I18N = True
-
-USE_TZ = True
+TIME_ZONE = 'Asia/Shanghai'  # 确保时区为中国时间
+USE_TZ = False  # 禁用 Django 的时区支持，直接使用本地时间
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

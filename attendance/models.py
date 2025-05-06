@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 
 # Create your models here.
 class Attendance(models.Model):
@@ -24,11 +24,12 @@ class Attendance(models.Model):
     class Meta:
         verbose_name = '考勤信息'
         verbose_name_plural = verbose_name
+        ordering = ['-create_time']
 
     def save(self, *args, **kwargs):
         if not self.attendance_id:  # 只有在 attendance_id 为空时才生成新的 ID
             if not self.date:  # 如果 date 为空，设置为当前日期
-                self.date = now().date()
+                self.date = localtime(now()).date()  # 使用中国时间
             formatted_date = self.date.strftime('%Y%m%d')  # 格式化日期为 YYYYMMDD
             self.attendance_id = f"{self.emp_user_id}_{formatted_date}"
         super().save(*args, **kwargs)
