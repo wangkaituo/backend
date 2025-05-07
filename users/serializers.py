@@ -29,3 +29,10 @@ class EmpUserSerializer(serializers.ModelSerializer):
             instance.set_password(password)  # 加密处理
         instance.save()
         return instance
+
+
+class ChangeEmpUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmpUser
+        fields = ['emp_name', 'emp_email', 'emp_phone', 'emp_role', 'department']
+        read_only_fields = ('emp_id', 'emp_join_date')

@@ -55,6 +55,7 @@ class EmpUser(AbstractBaseUser, PermissionsMixin):
         db_table = 'users_empuser'
         verbose_name = '员工信息'
         verbose_name_plural = verbose_name
+        ordering = ['emp_id']
 
     def __str__(self):
         return self.emp_name
