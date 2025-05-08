@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,6 +34,26 @@ CORS_ORIGIN_WHITELIST = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+#设置Celery作为Celery的后端
+CELERY_BROKER_URL ='redis://localhost:6379/1'
+CELERY_RESULT_BACKEND ='redis://localhost:6379/1'
+#结果序列化
+CELERY_TASK_SERIALIZER = 'json'
+#任务接受序列化
+CELERY_ACCEPT_CONTENT = ['json']
+#时区设置
+CELERY_TIMEZONE = 'Asia/Shanghai'
+#设置任务过期时间
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24  # 任务过期时间为1天
+#指定导入的任务模块
+CELERY_IMPORTS = ('attendance.tasks',)
+#设置定时任务
+CELERY_BEAT_SCHEDULE ={
+    'check_absent_emp':{
+        'task': 'attendance.tasks.check_attendance',
+        'schedule': crontab(hour=19,minute=30),
+    },
+}
 # Application definition
 
 INSTALLED_APPS = [
