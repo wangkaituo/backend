@@ -36,3 +36,7 @@ class ChangeEmpUserSerializer(serializers.ModelSerializer):
         model = EmpUser
         fields = ['emp_name', 'emp_email', 'emp_phone', 'emp_role', 'department']
         read_only_fields = ('emp_id', 'emp_join_date')
+class ChangeSelf(serializers.ModelSerializer):
+    class Meta:
+        model = EmpUser
+        fields = ['emp_email', 'emp_phone','emp_id']

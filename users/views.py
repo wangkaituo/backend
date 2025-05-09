@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.exceptions import ValidationError
-from .serializers import EmpUserSerializer,ChangeEmpUserSerializer
+from .serializers import EmpUserSerializer,ChangeEmpUserSerializer,ChangeSelf
 from .models import EmpUser
 from .permissions import IsSelfOrBoss, CanViewDepartmentUsers
 from paginations.emp_pagination import EmpPagination
@@ -67,13 +67,12 @@ class EmpUserDetail(generics.RetrieveUpdateDestroyAPIView):
         if user.emp_role == 'boss':
             instance.delete()
         else:
-            raise PermissionError(
-                'You do not have permission to perform this action.')
+            raise PermissionError('You do not have permission to perform this action.')
 
     def get_queryset(self):
         user = self.request.user
         if user.emp_role == 'boss':
-            queryset = EmpUser.objects.all().order_by('emp_id')  # 添加排序字段
+            queryset = EmpUser.objects.all()  # 添加排序字段
         elif user.emp_role == 'manager' and self.request.method in SAFE_METHODS:
             queryset = EmpUser.objects.filter(department=user.department).order_by('emp_id')
         else:
@@ -81,12 +80,19 @@ class EmpUserDetail(generics.RetrieveUpdateDestroyAPIView):
         return queryset
 
     def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH']:
-            return ChangeEmpUserSerializer  # 使用修改序列化器
+        user = self.request.user
+        emp_id = self.kwargs.get("pk")  # 从 URL 参数中获取 emp_id
+        emp_role = user.emp_role# 如果需要，可以从请求体中获取其他字段
+        # print(emp_role)调试日志
+        # print(emp_id,type(emp_id))
+        # print(user.emp_id,type(user.emp_id))
+        if self.request.method in ['PUT', 'PATCH'] and emp_id == user.emp_id:
+            return ChangeSelf  # 使用专门的序列化器
+        if self.request.method in ['PUT', 'PATCH'] and emp_role == 'boss' and emp_id != user.emp_id:
+            return ChangeEmpUserSerializer
         return EmpUserSerializer
 
-    # def perform_update(self, serializer):
-    #     user = self.request.user
-    #     data = self.request.data
-    #     emp_role = data.get("emp_role", None)
+
+
+
 
