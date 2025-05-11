@@ -14,3 +14,9 @@ class Department(models.Model):
     class Meta:
         verbose_name = '部门'
         verbose_name_plural = verbose_name
+
+    def save(self, *args, **kwargs):
+        if not self.dept_id:
+            last = Department.objects.all().order_by('dept_id').last()
+            last_id = int(last.dept_id)
+            print(last_id)

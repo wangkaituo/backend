@@ -17,12 +17,14 @@ class DepartmentList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         user = self.request.user
+        data = self.request.data
+
         if user.emp_role!= 'boss':
-            raise ValidationError("只有部门老板才能创建部门")
+            raise ValidationError({"error":"Only Boss can create department"})
         manager = serializer.validated_data.get('dept_manager')
         # emp = EmpUser.objects.filter(department=serializer.instance, emp_role='manager').first()
         if manager and (manager.emp_role != 'manager' or manager.department != serializer.instance):
-            raise ValidationError("部门经理必须是本部门的经理角色用户")
+            raise ValidationError({"error":"Department Manager must be a manager of the department"})
         serializer.save()
 
 
