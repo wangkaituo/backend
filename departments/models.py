@@ -19,4 +19,6 @@ class Department(models.Model):
         if not self.dept_id:
             last = Department.objects.all().order_by('dept_id').last()
             last_id = int(last.dept_id)
-            print(last_id)
+            new_id = f"{last_id+1:03d}"
+            self.dept_id = new_id
+            super().save(*args, **kwargs)

@@ -5,7 +5,7 @@ from.models import Department
 class DepartmentSerializer(serializers.ModelSerializer):
     dept_manager_name = serializers.ReadOnlyField(source='dept_manager.emp_name')
 
-
     class Meta:
         model = Department
         fields = '__all__'
+        read_only_fields = ['dept_id',]

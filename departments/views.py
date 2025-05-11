@@ -18,7 +18,9 @@ class DepartmentList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         data = self.request.data
-
+        dept_manager = data.get('dept_manager')
+        print(dept_manager)
+        print(data)
         if user.emp_role!= 'boss':
             raise ValidationError({"error":"Only Boss can create department"})
         manager = serializer.validated_data.get('dept_manager')
