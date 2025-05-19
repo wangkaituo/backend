@@ -1,9 +1,10 @@
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-from rest_framework.decorators import permission_classes, authentication_classes, permission_classes
-from rest_framework.response import Response
+from rest_framework.decorators import permission_classes
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from .models import EmpUser
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     # 添加字段声明
@@ -30,6 +31,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         )
         data['emp_id'] = user.emp_id
         data['role'] = user.emp_role
+        data['name'] = user.emp_name
         return data
 @permission_classes([])
 class MyTokenObtainPairView(TokenObtainPairView):
